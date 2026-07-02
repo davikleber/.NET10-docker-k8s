@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net10.docker.k8s.Model;
 using Net10.docker.k8s.Services;
@@ -6,6 +7,7 @@ namespace Net10.docker.k8s.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CarController : ControllerBase
     {
         private readonly ICarServices _carService;

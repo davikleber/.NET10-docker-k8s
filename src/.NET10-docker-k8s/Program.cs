@@ -6,6 +6,12 @@ using Net10.docker.k8s.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Net10.docker.k8s.Repositories.Impl;
+using Net10.docker.k8s.Services.Impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +38,39 @@ builder.Services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
 builder.Services.AddScoped<IPersonServices, PersonServicesImpl>();
 builder.Services.AddScoped<ICarRepository, CarRepositoryImpl>();
 builder.Services.AddScoped<ICarServices, CarServicesImpl>();
+builder.Services.AddScoped<IUserRepository, UserRepositoryImpl>();
+builder.Services.AddScoped<IUserService, UserServiceImpl>();
+
+// Password hasher
+builder.Services.AddSingleton<IPasswordHasher<Net10.docker.k8s.Model.User>, PasswordHasher<Net10.docker.k8s.Model.User>>();
+
+// Jwt and auth services
+builder.Services.AddSingleton<JwtTokenService>();
+builder.Services.AddScoped<AuthService>();
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var key = jwtSection.GetValue<string>("Key");
+if (!string.IsNullOrEmpty(key))
+{
+    var keyBytes = Encoding.UTF8.GetBytes(key);
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSection.GetValue<string>("Issuer"),
+            ValidAudience = jwtSection.GetValue<string>("Audience"),
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
+        };
+    });
+}
 
 var app = builder.Build();
 
@@ -44,6 +83,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

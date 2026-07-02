@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net10.docker.k8s.Services;
 using Net10.docker.k8s.Model;
@@ -7,6 +8,7 @@ namespace Net10.docker.k8s.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PersonController : ControllerBase
     {
         private readonly IPersonServices _personService;

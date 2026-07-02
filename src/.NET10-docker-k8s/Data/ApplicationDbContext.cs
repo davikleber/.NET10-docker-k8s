@@ -11,6 +11,7 @@ namespace Net10.docker.k8s.Data
 
         public DbSet<Person> Persons { get; set; } = null!;
         public DbSet<Car> Cars { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
