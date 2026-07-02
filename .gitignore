@@ -1,0 +1,48 @@
+.vs/
+.vscode/
+_ReSharper*/
+*.DotSettings.user
+
+# Build folders
+[Bb]in/
+[Oo]bj/
+**/[Bb]in/
+**/[Oo]bj/
+
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Publish output
+publish/
+*.Publish.xml
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Logs and temporary files
+*.log
+*.tlog
+*.tmp
+*.tmp_proj
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore user-specific files
+*.rsuser
+*.userprefs
