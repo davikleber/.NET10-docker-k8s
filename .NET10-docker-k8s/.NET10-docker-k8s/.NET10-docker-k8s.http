@@ -1,6 +1,6 @@
 @_NET10_docker_k8s_HostAddress = http://localhost:5039
 
-GET {{_NET10_docker_k8s_HostAddress}}/weatherforecast/
+GET {{_NET10_docker_k8s_HostAddress}}/api/person/
 Accept: application/json
 
 ###
