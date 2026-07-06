@@ -48,6 +48,9 @@ builder.Services.AddSingleton<IPasswordHasher<Net10.docker.k8s.Model.User>, Pass
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 
+// Cognito token service (client credentials)
+builder.Services.AddHttpClient<Net10.docker.k8s.Services.ICognitoTokenService, Net10.docker.k8s.Services.CognitoTokenService>();
+
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var key = jwtSection.GetValue<string>("Key");
 if (!string.IsNullOrEmpty(key))
@@ -73,6 +76,32 @@ if (!string.IsNullOrEmpty(key))
 }
 
 var app = builder.Build();
+
+// Fetch a Cognito token on startup (non-blocking)
+_ = Task.Run(async () =>
+{
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var tokenSvc = scope.ServiceProvider.GetService<Net10.docker.k8s.Services.ICognitoTokenService>();
+        if (tokenSvc != null)
+        {
+            var token = await tokenSvc.GetClientCredentialsTokenAsync();
+            if (token != null)
+            {
+                Log.Logger.Information("Fetched Cognito token (length={Length})", token.Access_Token?.Length ?? 0);
+            }
+            else
+            {
+                Log.Logger.Warning("Failed to fetch Cognito token on startup.");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Logger.Error(ex, "Error while fetching Cognito token on startup");
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
